@@ -67,4 +67,32 @@ mean((ridge.pred - test_data$Solubility)^2)
 ```
 The chosen lambda is 0.1235747 and the test error is 0.5134603
 
+# Part(c)
+```{r results = 'hide', warning=FALSE}
+#fit a lasso model
+set.seed(1)
+lasso.fit <- train(x, y,
+             method = "glmnet",
+             tuneGrid = expand.grid(alpha = 1,
+             lambda = exp(seq(2, -9, length=100))),
+             preProc = c("center", "scale"),
+             trControl = ctrl1) 
+
+#choose lambda
+plot(lasso.fit, xTrans = log)
+best_lasso = lasso.fit$bestTune
+
+#calculate test error
+lasso.pred <- predict(lasso.fit, newdata = test2) 
+mean((lasso.pred - test_data$Solubility)^2)
+
+#find number of coefficient estimates
+coef(lasso.fit$finalModel, lasso.fit$bestTune$lambda)
+```
+The chosen lambda is 0.00386592, the test error is 0.50333, and there are 149 non-zero coefficient estimates in the model. 
+
+
+
+
+
 
