@@ -122,6 +122,16 @@ pcr.fit <- train(x, y,
 ```
 The chosen M is 152 and the test error is 0.5477905
 
+# Part(e)
+```{r}
+#choose a model to predict solubility
+resamp <- resamples(list(lasso = lasso.fit, ridge = ridge.fit, lm = lm.fit, pcr = pcr.fit))
+summary(resamp)
+bwplot(resamp, metric = "RMSE")
+```
+<br/>  
+
+I will choose the Lasso model to predict solubility because it has the lowest mean and median RMSE among all the above models. 
 
 
 
