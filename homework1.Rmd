@@ -91,6 +91,37 @@ coef(lasso.fit$finalModel, lasso.fit$bestTune$lambda)
 ```
 The chosen lambda is 0.00386592, the test error is 0.50333, and there are 149 non-zero coefficient estimates in the model. 
 
+# Part(d)
+```{r results = 'hide', warning=FALSE}
+#fit model using function pcr()
+set.seed(1)
+pcr.mod <- pcr(Solubility ~ .,
+data = train_data,
+scale = TRUE,
+validation= "CV")
+summary(pcr.mod)
+
+validationplot(pcr.mod, val.type="MSEP", legendpos = "topright")
+cv.mse <- RMSEP(pcr.mod)
+ncomp.cv <- which.min(cv.mse$val[1,,])-1 
+ncomp.cv
+
+predy2.pcr2 <- predict(pcr.mod, newdata = y1, ncomp = ncomp.cv) 
+mean((y2 - predy2.pcr2)^2)
+
+
+#fit model using caret 
+ctrl1 <- trainControl(method = "cv", selectionFunction = "best") 
+modelLookup("pcr")
+set.seed(1)
+pcr.fit <- train(x, y,
+           method = "pcr",
+           tuneGrid = data.frame(ncomp = 1:190), 
+           trControl = ctrl1,
+           preProcess = c("center", "scale"))
+```
+The chosen M is 152 and the test error is 0.5477905
+
 
 
 
