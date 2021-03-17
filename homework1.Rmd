@@ -1,0 +1,70 @@
+---
+title: "homework1"
+author: Na Yun Cho
+output: pdf_document
+---
+
+```{r message = FALSE, warning = FALSE}
+library(glmnet)
+library(caret)
+library(corrplot)
+library(plotmo)
+library(tidyverse)
+library(pls)
+```
+
+```{r results = 'hide'}
+train_data = read.csv("./data/solubility_train.csv")
+train_data <- na.omit(train_data)
+
+test_data = read.csv("./data/solubility_test.csv")
+test_data <- na.omit(test_data)
+
+train2 <- model.matrix(Solubility ~ .,train_data)[ ,-1]
+test2 <- model.matrix(Solubility ~ ., test_data)[ ,-1]
+
+#matrix of predictors
+x <- train2
+y1 <- test2
+#vector of response
+y <- train_data$Solubility
+y2 <- test_data$Solubility
+```
+
+# Part(a)
+```{r message = FALSE, warning = FALSE}
+#fit a linear model using least squares
+ctrl1 <- trainControl(method = "cv", number = 10) 
+set.seed(1)
+lm.fit <- train(x, y,
+                method = "lm",
+                trControl = ctrl1)
+
+#calculate mean squared error using test data
+linear.pred <- predict(lm.fit, newdata = test2) 
+mean((linear.pred - test_data$Solubility)^2)
+```
+The mean squared error using the test data is 0.5558898
+
+# Part(b)
+```{r warning = FALSE}
+#fit a ridge regression model
+ctrl1 <- trainControl(method = "cv", number = 10) 
+set.seed(1)
+ridge.fit <- train(x, y,
+                   method = "glmnet",
+                   tuneGrid = expand.grid(alpha = 0,
+                   lambda = exp(seq(7, -5, length=100))), 
+                   preProc = c("center", "scale"),
+                   trControl = ctrl1) 
+#choose lambda
+plot(ridge.fit, xTrans = log)
+best_ridge = ridge.fit$bestTune
+
+#calculate test error
+ridge.pred <- predict(ridge.fit, newdata = test2) 
+mean((ridge.pred - test_data$Solubility)^2)
+```
+The chosen lambda is 0.1235747 and the test error is 0.5134603
+
+
